@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Header } from './components/Header';
 import { Hero } from './components/Hero';
 import { Features } from './components/Features';
@@ -20,6 +20,22 @@ export function App() {
   const [sortBy, setSortBy] = useState<'featured' | 'price-low' | 'price-high'>('featured');
   const [cart, setCart] = useState<CartItem[]>([]);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+
+  useEffect(() => {
+    const handleUrlProduct = () => {
+      const params = new URLSearchParams(window.location.search);
+      const productId = params.get('product') || params.get('id');
+      if (productId) {
+        const found = products.find(p => String(p.id) === productId || p.slug === productId);
+        if (found) {
+          setSelectedProduct(found);
+        }
+      }
+    };
+    handleUrlProduct();
+    window.addEventListener('popstate', handleUrlProduct);
+    return () => window.removeEventListener('popstate', handleUrlProduct);
+  }, [products]);
 
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
